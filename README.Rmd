@@ -1,0 +1,88 @@
+---
+output: rmarkdown::github_document
+---
+
+# Potential bug in the R package `Synth`
+
+Running the first example in the docs of `Synth::synth()` (using the “Toy panel dataset”) gives:
+
+```{r}
+library(Synth)
+packageVersion("Synth")
+
+# load data
+data(synth.data)
+
+# create matrices from panel data that provide inputs for synth()
+dataprep.out <-
+ dataprep(
+   foo = synth.data,
+   predictors = c("X1", "X2", "X3"),
+   predictors.op = "mean",
+   dependent = "Y",
+   unit.variable = "unit.num",
+   time.variable = "year",
+   special.predictors = list(
+     list("Y", 1991, "mean"),
+     list("Y", 1985, "mean"),
+     list("Y", 1980, "mean")
+   ),
+   treatment.identifier = 7,
+   controls.identifier = c(29, 2, 13, 17, 32, 38),
+   time.predictors.prior = c(1984:1989),
+   time.optimize.ssr = c(1984:1990),
+   unit.names.variable = "name",
+   time.plot = 1984:1996
+ )
+
+synth.out <- synth(dataprep.out)
+
+gaps_orig <- dataprep.out$Y1plot - (
+  dataprep.out$Y0plot %*% synth.out$solution.w
+)
+```
+ 
+
+
+Now, I change the order of the predictors to be `c("X3", "X1", "X2")` without changing anything else:
+
+```{r}
+dataprep.out <-
+ dataprep(
+   foo = synth.data,
+   predictors = c("X3", "X1", "X2"),
+   predictors.op = "mean",
+   dependent = "Y",
+   unit.variable = "unit.num",
+   time.variable = "year",
+   special.predictors = list(
+     list("Y", 1991, "mean"),
+     list("Y", 1985, "mean"),
+     list("Y", 1980, "mean")
+   ),
+   treatment.identifier = 7,
+   controls.identifier = c(29, 2, 13, 17, 32, 38),
+   time.predictors.prior = c(1984:1989),
+   time.optimize.ssr = c(1984:1990),
+   unit.names.variable = "name",
+   time.plot = 1984:1996
+ )
+
+synth.out <- synth(dataprep.out)
+
+gaps_mod <- dataprep.out$Y1plot - (
+  dataprep.out$Y0plot %*% synth.out$solution.w
+)
+```
+
+Comparing the two:
+
+```{r}
+out <- cbind(gaps_orig, gaps_mod)
+out
+
+matplot(out, type = "b", pch = 1, col = 1:2)
+legend("topleft", legend = c("orig", "mod"), col = 1:2, pch = 1)
+```
+
+Not a big difference in this case, but still a difference whereas there shouldn't be any. It isn't mentioned anywhere in the documentation that the order of controls is important (and I don't know why it should be like that).
