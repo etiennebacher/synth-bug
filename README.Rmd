@@ -4,10 +4,12 @@ output: rmarkdown::github_document
 
 # Potential bug in the R package `Synth`
 
-Running the first example in the docs of `Synth::synth()` (using the “Toy panel dataset”) gives:
+First, I run the first example in the docs of `Synth::synth()` (using the “Toy panel dataset”) as-is:
 
 ```{r}
-library(Synth)
+suppressPackageStartupMessages({
+  library(Synth)
+})
 packageVersion("Synth")
 
 # load data

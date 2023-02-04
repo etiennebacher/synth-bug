@@ -1,19 +1,13 @@
 
 # Potential bug in the R package `Synth`
 
-Running the first example in the docs of `Synth::synth()` (using the
-“Toy panel dataset”) gives:
+First, I run the first example in the docs of `Synth::synth()` (using
+the “Toy panel dataset”) as-is:
 
 ``` r
-library(Synth)
-```
-
-    ## ##
-    ## ## Synth Package: Implements Synthetic Control Methods.
-
-    ## ## See https://web.stanford.edu/~jhain/synthpage.html for additional information.
-
-``` r
+suppressPackageStartupMessages({
+  library(Synth)
+})
 packageVersion("Synth")
 ```
 
